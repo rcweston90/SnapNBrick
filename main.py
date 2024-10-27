@@ -21,6 +21,21 @@ st.set_page_config(
 with open("styles/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+def calculate_brick_size(image_shape, canvas_width, canvas_height):
+    """Calculate optimal brick size maintaining aspect ratio"""
+    img_h, img_w = image_shape[:2]
+    img_aspect = img_w / img_h
+    canvas_aspect = canvas_width / canvas_height
+    
+    if img_aspect > canvas_aspect:
+        # Image is wider relative to canvas
+        brick_size = img_w // canvas_width
+    else:
+        # Image is taller relative to canvas
+        brick_size = img_h // canvas_height
+        
+    return max(10, brick_size)  # Ensure minimum brick size of 10 pixels
+
 def main():
     st.title("🧱 LEGO Mosaic Creator")
     st.write("Transform your photos into LEGO brick mosaics!")
@@ -37,46 +52,53 @@ def main():
             st.subheader("Original Image")
             st.image(image, use_column_width=True)
 
-        # Customization Options Section
+        # Canvas Size and Customization Options Section
+        st.subheader("Canvas Size")
+        col_size1, col_size2 = st.columns(2)
+        
+        # Get image dimensions
+        img_array = np.array(image)
+        img_h, img_w = img_array.shape[:2]
+        aspect_ratio = img_w / img_h
+        
+        with col_size1:
+            canvas_width = st.number_input("Canvas Width (bricks)", 
+                                         min_value=10, 
+                                         max_value=100, 
+                                         value=min(50, img_w // 10))
+            
+        with col_size2:
+            suggested_height = int(canvas_width / aspect_ratio)
+            canvas_height = st.number_input("Canvas Height (bricks)", 
+                                          min_value=10, 
+                                          max_value=100, 
+                                          value=min(50, suggested_height))
+
+        # Calculate optimal brick size
+        brick_size = calculate_brick_size(img_array.shape, canvas_width, canvas_height)
+        
+        st.info(f"Calculated brick size: {brick_size}px per brick")
+        
+        # Additional Customization Options
         st.subheader("Customization Options")
-        col_opt1, col_opt2, col_opt3 = st.columns(3)
+        col_opt1, col_opt2 = st.columns(2)
         
         with col_opt1:
-            brick_size = st.slider("Brick Size (pixels)", 10, 50, 30)
             color_count = st.slider("Number of Colors", 5, 20, 12)
-        
-        with col_opt2:
             pattern_style = st.selectbox(
                 "Brick Pattern",
                 list(BRICK_PATTERNS.keys()),
                 index=0
             )
+        
+        with col_opt2:
             mosaic_style = st.selectbox(
                 "Mosaic Style",
                 list(MOSAIC_STYLES.keys()),
                 index=0
             )
-            
-        with col_opt3:
-            display_format = st.selectbox(
-                "Display Format",
-                ["Brick Size", "Grid Layout"],
-                index=0
-            )
-            if display_format == "Grid Layout":
-                grid_columns = st.number_input("Number of Columns", 1, 20, 8)
-            else:
-                grid_columns = None
         
         # Convert image to LEGO mosaic
-        img_array = np.array(image)
-        
-        # Adjust image size based on display format
-        if display_format == "Grid Layout":
-            # Calculate brick size based on desired number of columns
-            target_width = img_array.shape[1]
-            brick_size = target_width // grid_columns
-        
         lego_mosaic, brick_counts = convert_to_lego_mosaic(
             img_array, 
             brick_size, 
@@ -90,12 +112,9 @@ def main():
             st.image(lego_mosaic, use_column_width=True)
             
             # Display grid information
-            if display_format == "Grid Layout":
-                cols = lego_mosaic.shape[1] // brick_size
-                rows = lego_mosaic.shape[0] // brick_size
-                st.info(f"Grid Size: {rows} rows × {cols} columns")
-            else:
-                st.info(f"Brick Size: {brick_size}px")
+            actual_cols = lego_mosaic.shape[1] // brick_size
+            actual_rows = lego_mosaic.shape[0] // brick_size
+            st.info(f"Final Grid Size: {actual_rows} rows × {actual_cols} columns")
         
         # Display brick counts
         st.subheader("Brick Count Estimation")
@@ -110,7 +129,7 @@ def main():
             total_bricks = sum(brick_counts.values())
             st.write("Total Statistics:")
             st.write(f"- Total bricks needed: {total_bricks}")
-            st.write(f"- Mosaic dimensions: {lego_mosaic.shape[1]//brick_size} x {lego_mosaic.shape[0]//brick_size} bricks")
+            st.write(f"- Mosaic dimensions: {actual_cols} × {actual_rows} bricks")
         
         # Export options
         st.subheader("Export Options")
