@@ -85,11 +85,8 @@ def main():
         
         with col_opt1:
             color_count = st.slider("Number of Colors", 5, 20, 12)
-            pattern_style = st.selectbox(
-                "Brick Pattern",
-                list(BRICK_PATTERNS.keys()),
-                index=0
-            )
+            # Replace dropdown with checkbox for pattern selection
+            pattern_style = "Smooth Tile" if st.checkbox("Use Smooth Tile Pattern", False) else "Classic Studs"
         
         with col_opt2:
             mosaic_style = st.selectbox(

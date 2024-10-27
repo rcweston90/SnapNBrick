@@ -19,17 +19,9 @@ def create_smooth_pattern(brick_size):
     cv2.rectangle(pattern, (1, 1), (brick_size-2, brick_size-2), (0.2, 0.2, 0.2), 1)
     return pattern
 
-def create_diagonal_pattern(brick_size):
-    """Create a diagonal striped pattern"""
-    pattern = np.ones((brick_size, brick_size, 3), dtype=np.uint8)
-    for i in range(-brick_size, brick_size*2, 4):
-        cv2.line(pattern, (i, 0), (i+brick_size, brick_size), (0.2, 0.2, 0.2), 1)
-    return pattern
-
 BRICK_PATTERNS = {
     "Classic Studs": create_stud_pattern,
-    "Smooth Tile": create_smooth_pattern,
-    "Diagonal": create_diagonal_pattern
+    "Smooth Tile": create_smooth_pattern
 }
 
 # Update mosaic styles to use proper mask values
