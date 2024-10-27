@@ -18,11 +18,11 @@ def find_nearest_color(pixel, palette):
 
 def apply_brick_pattern(block, color, pattern):
     """Apply the selected brick pattern to a block"""
-    pattern_mask = pattern
-    colored_block = np.full_like(block, color)
-    # Apply pattern as an overlay instead of multiplication
-    result = cv2.addWeighted(colored_block, 1.0, pattern_mask * color, 0.2, 0)
-    return result.astype(np.uint8)
+    pattern_mask = pattern.astype(np.uint8)
+    colored_block = np.full_like(block, color, dtype=np.uint8)
+    overlay = (pattern_mask * color).astype(np.uint8)
+    result = cv2.addWeighted(colored_block, 0.8, overlay, 0.2, 0)
+    return result
 
 def convert_to_lego_mosaic(image, brick_size, color_count, pattern_style="Classic Studs", mosaic_style="Standard"):
     """Convert image to LEGO mosaic with specified pattern and style"""
