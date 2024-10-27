@@ -12,9 +12,7 @@ Transform your photos into LEGO brick mosaics with this interactive web applicat
   - Two brick patterns: Classic Studs and Smooth Tile
   - Multiple mosaic styles: Standard, Circular, and Diamond
 - **Brick Count Estimation**: Get detailed counts of required bricks by color
-- **Export Options**:
-  - Download the mosaic as a PNG image
-  - Generate PDF building instructions with color reference guide
+- **Export Options**: Download the mosaic as a PNG image
 
 ## 🚀 Getting Started
 
@@ -26,14 +24,13 @@ Transform your photos into LEGO brick mosaics with this interactive web applicat
   - opencv-python (cv2)
   - numpy
   - Pillow (PIL)
-  - reportlab
 
 ### Installation
 
 1. Clone the repository or download the source code
 2. Install the required packages:
 ```bash
-pip install streamlit opencv-python numpy pillow reportlab
+pip install streamlit opencv-python numpy pillow
 ```
 3. Run the application:
 ```bash
@@ -54,10 +51,6 @@ streamlit run main.py
 
 3. **Export Your Creation**:
    - Download the mosaic as a PNG image
-   - Generate PDF building instructions with:
-     - Grid-based assembly guide
-     - Color reference chart
-     - Brick count statistics
 
 ## 🎨 Customization Options
 
@@ -84,16 +77,15 @@ streamlit run main.py
 
 ```
 .
-├── main.py                 # Main application file
-├── lego_utils.py          # Core LEGO conversion utilities
-├── instruction_generator.py # PDF instruction generation
+├── main.py                # Main application file
+├── lego_utils.py         # Core LEGO conversion utilities
 ├── assets/
-│   ├── brick_patterns.py  # Brick pattern definitions
-│   └── lego_colors.py     # LEGO color definitions
+│   ├── brick_patterns.py # Brick pattern definitions
+│   └── lego_colors.py    # LEGO color definitions
 ├── styles/
-│   └── style.css         # Custom styling
+│   └── style.css        # Custom styling
 └── .streamlit/
-    └── config.toml       # Streamlit configuration
+    └── config.toml      # Streamlit configuration
 ```
 
 ## 🔧 Dependencies
@@ -103,7 +95,6 @@ streamlit run main.py
   - `opencv-python`: Image processing
   - `numpy`: Numerical computations
   - `Pillow`: Image handling
-  - `reportlab`: PDF generation
 
 ## 🤝 Contributing
 

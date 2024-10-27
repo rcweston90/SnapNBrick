@@ -8,7 +8,6 @@ from lego_utils import (
     get_lego_palette
 )
 from assets.brick_patterns import BRICK_PATTERNS, MOSAIC_STYLES
-from instruction_generator import create_building_instructions
 
 # Page configuration
 st.set_page_config(
@@ -131,6 +130,16 @@ def main():
             actual_cols = lego_mosaic.shape[1] // brick_size
             actual_rows = lego_mosaic.shape[0] // brick_size
             st.info(f"Final Grid Size: {actual_rows} rows × {actual_cols} columns")
+            
+            # Add download button right after the mosaic
+            buf = io.BytesIO()
+            Image.fromarray(lego_mosaic).save(buf, format="PNG")
+            st.download_button(
+                label="Download LEGO Mosaic",
+                data=buf.getvalue(),
+                file_name="lego_mosaic.png",
+                mime="image/png"
+            )
         
         # Brick count statistics in expandable section
         with st.expander("📊 Brick Count Statistics", expanded=False):
@@ -146,32 +155,6 @@ def main():
                 st.write("Total Statistics:")
                 st.write(f"- Total bricks needed: {total_bricks}")
                 st.write(f"- Mosaic dimensions: {actual_cols} × {actual_rows} bricks")
-        
-        # Export options in expandable section
-        with st.expander("💾 Export Options", expanded=False):
-            col5, col6 = st.columns(2)
-            
-            with col5:
-                if st.button("Download LEGO Mosaic Image"):
-                    buf = io.BytesIO()
-                    Image.fromarray(lego_mosaic).save(buf, format="PNG")
-                    st.download_button(
-                        label="Click to Download Image",
-                        data=buf.getvalue(),
-                        file_name="lego_mosaic.png",
-                        mime="image/png"
-                    )
-            
-            with col6:
-                if st.button("Download Building Instructions"):
-                    # Generate PDF instructions
-                    pdf_data = create_building_instructions(lego_mosaic, brick_size, brick_counts)
-                    st.download_button(
-                        label="Click to Download Instructions",
-                        data=pdf_data,
-                        file_name="lego_instructions.pdf",
-                        mime="application/pdf"
-                    )
 
 if __name__ == "__main__":
     main()
