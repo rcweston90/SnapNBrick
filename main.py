@@ -56,7 +56,7 @@ def main():
         
         # Convert image to LEGO mosaic
         img_array = np.array(image)
-        lego_mosaic = convert_to_lego_mosaic(
+        lego_mosaic, brick_counts = convert_to_lego_mosaic(
             img_array, 
             brick_size, 
             color_count,
@@ -67,6 +67,21 @@ def main():
         with col2:
             st.subheader("LEGO Mosaic")
             st.image(lego_mosaic, use_column_width=True)
+        
+        # Display brick counts
+        st.subheader("Brick Count Estimation")
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.write("Number of bricks needed for each color:")
+            for color, count in brick_counts.items():
+                st.write(f"- {color}: {count} bricks")
+        
+        with col4:
+            total_bricks = sum(brick_counts.values())
+            st.write("Total Statistics:")
+            st.write(f"- Total bricks needed: {total_bricks}")
+            st.write(f"- Mosaic dimensions: {lego_mosaic.shape[1]//brick_size} x {lego_mosaic.shape[0]//brick_size} bricks")
         
         # Download button
         if st.button("Download LEGO Mosaic"):
