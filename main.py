@@ -50,7 +50,7 @@ def main():
         if uploaded_file is not None:
             st.session_state.image = Image.open(uploaded_file)
             # Trigger rerun to update the UI
-            st.experimental_rerun()
+            st.rerun()
     
     # If image is loaded, show reset button and process image
     if st.session_state.image is not None:
@@ -59,7 +59,7 @@ def main():
         with right_col:
             if st.button("Reset"):
                 st.session_state.image = None
-                st.experimental_rerun()
+                st.rerun()
 
         # Display and process image
         col1, col2 = st.columns(2)
