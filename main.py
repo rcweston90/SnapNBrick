@@ -7,6 +7,7 @@ from lego_utils import (
     convert_to_lego_mosaic,
     get_lego_palette
 )
+from assets.brick_patterns import BRICK_PATTERNS, MOSAIC_STYLES
 
 # Page configuration
 st.set_page_config(
@@ -28,6 +29,19 @@ def main():
     brick_size = st.sidebar.slider("Brick Size (pixels)", 10, 50, 30)
     color_count = st.sidebar.slider("Number of Colors", 5, 20, 12)
     
+    # New pattern and style selectors
+    pattern_style = st.sidebar.selectbox(
+        "Brick Pattern",
+        list(BRICK_PATTERNS.keys()),
+        index=0
+    )
+    
+    mosaic_style = st.sidebar.selectbox(
+        "Mosaic Style",
+        list(MOSAIC_STYLES.keys()),
+        index=0
+    )
+    
     # File uploader
     uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
     
@@ -42,7 +56,13 @@ def main():
         
         # Convert image to LEGO mosaic
         img_array = np.array(image)
-        lego_mosaic = convert_to_lego_mosaic(img_array, brick_size, color_count)
+        lego_mosaic = convert_to_lego_mosaic(
+            img_array, 
+            brick_size, 
+            color_count,
+            pattern_style,
+            mosaic_style
+        )
         
         with col2:
             st.subheader("LEGO Mosaic")
