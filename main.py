@@ -37,30 +37,33 @@ def calculate_brick_size(image_shape, canvas_width, canvas_height):
     return max(10, brick_size)  # Ensure minimum brick size of 10 pixels
 
 def main():
-    st.title("🧱 LEGO Mosaic Creator")
-    st.write("Transform your photos into LEGO brick mosaics!")
+    # Create a row for title and reset button
+    title_col, reset_col = st.columns([5, 1])
+    
+    with title_col:
+        st.title("🧱 LEGO Mosaic Creator")
+        st.write("Transform your photos into LEGO brick mosaics!")
 
     # Initialize session state if not exists
     if 'image' not in st.session_state:
         st.session_state.image = None
+
+    # Show reset button if image is loaded
+    with reset_col:
+        if st.session_state.image is not None:
+            if st.button("Reset"):
+                st.session_state.image = None
+                st.rerun()
 
     # Show file uploader only if no image is loaded
     if st.session_state.image is None:
         uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
         if uploaded_file is not None:
             st.session_state.image = Image.open(uploaded_file)
-            # Trigger rerun to update the UI
             st.rerun()
     
-    # If image is loaded, show reset button and process image
+    # If image is loaded, process and display it
     if st.session_state.image is not None:
-        # Right-justified reset button
-        _, right_col = st.columns([6, 1])
-        with right_col:
-            if st.button("Reset"):
-                st.session_state.image = None
-                st.rerun()
-
         # Display and process image
         col1, col2 = st.columns(2)
         
