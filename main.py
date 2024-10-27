@@ -25,24 +25,6 @@ def main():
     st.title("🧱 LEGO Mosaic Creator")
     st.write("Transform your photos into LEGO brick mosaics!")
 
-    # Sidebar controls
-    st.sidebar.header("Customization Options")
-    brick_size = st.sidebar.slider("Brick Size (pixels)", 10, 50, 30)
-    color_count = st.sidebar.slider("Number of Colors", 5, 20, 12)
-    
-    # New pattern and style selectors
-    pattern_style = st.sidebar.selectbox(
-        "Brick Pattern",
-        list(BRICK_PATTERNS.keys()),
-        index=0
-    )
-    
-    mosaic_style = st.sidebar.selectbox(
-        "Mosaic Style",
-        list(MOSAIC_STYLES.keys()),
-        index=0
-    )
-    
     # File uploader
     uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
     
@@ -54,6 +36,26 @@ def main():
         with col1:
             st.subheader("Original Image")
             st.image(image, use_column_width=True)
+
+        # Customization Options Section
+        st.subheader("Customization Options")
+        col_opt1, col_opt2 = st.columns(2)
+        
+        with col_opt1:
+            brick_size = st.slider("Brick Size (pixels)", 10, 50, 30)
+            color_count = st.slider("Number of Colors", 5, 20, 12)
+        
+        with col_opt2:
+            pattern_style = st.selectbox(
+                "Brick Pattern",
+                list(BRICK_PATTERNS.keys()),
+                index=0
+            )
+            mosaic_style = st.selectbox(
+                "Mosaic Style",
+                list(MOSAIC_STYLES.keys()),
+                index=0
+            )
         
         # Convert image to LEGO mosaic
         img_array = np.array(image)
