@@ -8,6 +8,12 @@
     margin: 1rem 0;
 }
 
+/* Special styling for reset button */
+div[data-testid="column"]:last-child .stButton button {
+    background-color: #6c757d;
+    font-weight: bold;
+}
+
 .stButton button:hover {
     background-color: #FF6B6B;
 }

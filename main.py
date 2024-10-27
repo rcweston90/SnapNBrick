@@ -40,39 +40,55 @@ def main():
     st.title("🧱 LEGO Mosaic Creator")
     st.write("Transform your photos into LEGO brick mosaics!")
 
-    # File uploader
-    uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
+    # Initialize session state if not exists
+    if 'image' not in st.session_state:
+        st.session_state.image = None
+
+    # Show file uploader only if no image is loaded
+    if st.session_state.image is None:
+        uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
+        if uploaded_file is not None:
+            st.session_state.image = Image.open(uploaded_file)
+            # Trigger rerun to update the UI
+            st.experimental_rerun()
     
-    if uploaded_file is not None:
-        # Load and display original image
-        image = Image.open(uploaded_file)
+    # If image is loaded, show reset button and process image
+    if st.session_state.image is not None:
+        # Right-justified reset button
+        _, right_col = st.columns([6, 1])
+        with right_col:
+            if st.button("Reset"):
+                st.session_state.image = None
+                st.experimental_rerun()
+
+        # Display and process image
         col1, col2 = st.columns(2)
         
         with col1:
             st.subheader("Original Image")
-            st.image(image, use_column_width=True)
+            st.image(st.session_state.image, use_column_width=True)
 
         # Canvas Size and Customization Options Section
         st.subheader("Canvas Size")
         col_size1, col_size2 = st.columns(2)
         
         # Get image dimensions
-        img_array = np.array(image)
+        img_array = np.array(st.session_state.image)
         img_h, img_w = img_array.shape[:2]
         aspect_ratio = img_w / img_h
         
         with col_size1:
             canvas_width = st.number_input("Canvas Width (bricks)", 
-                                         min_value=10, 
-                                         max_value=100, 
-                                         value=min(50, img_w // 10))
+                                        min_value=10, 
+                                        max_value=100, 
+                                        value=min(50, img_w // 10))
             
         with col_size2:
             suggested_height = int(canvas_width / aspect_ratio)
             canvas_height = st.number_input("Canvas Height (bricks)", 
-                                          min_value=10, 
-                                          max_value=100, 
-                                          value=min(50, suggested_height))
+                                        min_value=10, 
+                                        max_value=100, 
+                                        value=min(50, suggested_height))
 
         # Calculate optimal brick size
         brick_size = calculate_brick_size(img_array.shape, canvas_width, canvas_height)
