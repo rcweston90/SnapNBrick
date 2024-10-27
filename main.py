@@ -64,56 +64,56 @@ def main():
     
     # If image is loaded, process and display it
     if st.session_state.image is not None:
-        # Display and process image
+        # Create expandable customization section
+        with st.expander("⚙️ Customization Options", expanded=True):
+            # Two columns for canvas size
+            st.subheader("Canvas Size")
+            size_col1, size_col2 = st.columns(2)
+            
+            # Get image dimensions
+            img_array = np.array(st.session_state.image)
+            img_h, img_w = img_array.shape[:2]
+            aspect_ratio = img_w / img_h
+            
+            with size_col1:
+                canvas_width = st.number_input("Canvas Width (bricks)", 
+                                          min_value=10, 
+                                          max_value=100, 
+                                          value=min(50, img_w // 10))
+                
+            with size_col2:
+                suggested_height = int(canvas_width / aspect_ratio)
+                canvas_height = st.number_input("Canvas Height (bricks)", 
+                                           min_value=10, 
+                                           max_value=100, 
+                                           value=min(50, suggested_height))
+
+            # Calculate optimal brick size
+            brick_size = calculate_brick_size(img_array.shape, canvas_width, canvas_height)
+            st.info(f"Calculated brick size: {brick_size}px per brick")
+            
+            # Style options in two columns
+            st.subheader("Style Options")
+            opt_col1, opt_col2 = st.columns(2)
+            
+            with opt_col1:
+                color_count = st.slider("Number of Colors", 5, 20, 12)
+                pattern_style = "Smooth Tile" if st.checkbox("Use Smooth Tile Pattern", False) else "Classic Studs"
+            
+            with opt_col2:
+                mosaic_style = st.selectbox(
+                    "Mosaic Style",
+                    list(MOSAIC_STYLES.keys()),
+                    index=0
+                )
+        
+        # Display images side by side
         col1, col2 = st.columns(2)
         
         with col1:
             st.subheader("Original Image")
             st.image(st.session_state.image, use_column_width=True)
 
-        # Canvas Size and Customization Options Section
-        st.subheader("Canvas Size")
-        col_size1, col_size2 = st.columns(2)
-        
-        # Get image dimensions
-        img_array = np.array(st.session_state.image)
-        img_h, img_w = img_array.shape[:2]
-        aspect_ratio = img_w / img_h
-        
-        with col_size1:
-            canvas_width = st.number_input("Canvas Width (bricks)", 
-                                        min_value=10, 
-                                        max_value=100, 
-                                        value=min(50, img_w // 10))
-            
-        with col_size2:
-            suggested_height = int(canvas_width / aspect_ratio)
-            canvas_height = st.number_input("Canvas Height (bricks)", 
-                                        min_value=10, 
-                                        max_value=100, 
-                                        value=min(50, suggested_height))
-
-        # Calculate optimal brick size
-        brick_size = calculate_brick_size(img_array.shape, canvas_width, canvas_height)
-        
-        st.info(f"Calculated brick size: {brick_size}px per brick")
-        
-        # Additional Customization Options
-        st.subheader("Customization Options")
-        col_opt1, col_opt2 = st.columns(2)
-        
-        with col_opt1:
-            color_count = st.slider("Number of Colors", 5, 20, 12)
-            # Replace dropdown with checkbox for pattern selection
-            pattern_style = "Smooth Tile" if st.checkbox("Use Smooth Tile Pattern", False) else "Classic Studs"
-        
-        with col_opt2:
-            mosaic_style = st.selectbox(
-                "Mosaic Style",
-                list(MOSAIC_STYLES.keys()),
-                index=0
-            )
-        
         # Convert image to LEGO mosaic
         lego_mosaic, brick_counts = convert_to_lego_mosaic(
             img_array, 
@@ -132,46 +132,46 @@ def main():
             actual_rows = lego_mosaic.shape[0] // brick_size
             st.info(f"Final Grid Size: {actual_rows} rows × {actual_cols} columns")
         
-        # Display brick counts
-        st.subheader("Brick Count Estimation")
-        col3, col4 = st.columns(2)
+        # Brick count statistics in expandable section
+        with st.expander("📊 Brick Count Statistics", expanded=False):
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                st.write("Number of bricks needed for each color:")
+                for color, count in brick_counts.items():
+                    st.write(f"- {color}: {count} bricks")
+            
+            with col4:
+                total_bricks = sum(brick_counts.values())
+                st.write("Total Statistics:")
+                st.write(f"- Total bricks needed: {total_bricks}")
+                st.write(f"- Mosaic dimensions: {actual_cols} × {actual_rows} bricks")
         
-        with col3:
-            st.write("Number of bricks needed for each color:")
-            for color, count in brick_counts.items():
-                st.write(f"- {color}: {count} bricks")
-        
-        with col4:
-            total_bricks = sum(brick_counts.values())
-            st.write("Total Statistics:")
-            st.write(f"- Total bricks needed: {total_bricks}")
-            st.write(f"- Mosaic dimensions: {actual_cols} × {actual_rows} bricks")
-        
-        # Export options
-        st.subheader("Export Options")
-        col5, col6 = st.columns(2)
-        
-        with col5:
-            if st.button("Download LEGO Mosaic Image"):
-                buf = io.BytesIO()
-                Image.fromarray(lego_mosaic).save(buf, format="PNG")
-                st.download_button(
-                    label="Click to Download Image",
-                    data=buf.getvalue(),
-                    file_name="lego_mosaic.png",
-                    mime="image/png"
-                )
-        
-        with col6:
-            if st.button("Download Building Instructions"):
-                # Generate PDF instructions
-                pdf_data = create_building_instructions(lego_mosaic, brick_size, brick_counts)
-                st.download_button(
-                    label="Click to Download Instructions",
-                    data=pdf_data,
-                    file_name="lego_instructions.pdf",
-                    mime="application/pdf"
-                )
+        # Export options in expandable section
+        with st.expander("💾 Export Options", expanded=False):
+            col5, col6 = st.columns(2)
+            
+            with col5:
+                if st.button("Download LEGO Mosaic Image"):
+                    buf = io.BytesIO()
+                    Image.fromarray(lego_mosaic).save(buf, format="PNG")
+                    st.download_button(
+                        label="Click to Download Image",
+                        data=buf.getvalue(),
+                        file_name="lego_mosaic.png",
+                        mime="image/png"
+                    )
+            
+            with col6:
+                if st.button("Download Building Instructions"):
+                    # Generate PDF instructions
+                    pdf_data = create_building_instructions(lego_mosaic, brick_size, brick_counts)
+                    st.download_button(
+                        label="Click to Download Instructions",
+                        data=pdf_data,
+                        file_name="lego_instructions.pdf",
+                        mime="application/pdf"
+                    )
 
 if __name__ == "__main__":
     main()
