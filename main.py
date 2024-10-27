@@ -39,7 +39,7 @@ def main():
 
         # Customization Options Section
         st.subheader("Customization Options")
-        col_opt1, col_opt2 = st.columns(2)
+        col_opt1, col_opt2, col_opt3 = st.columns(3)
         
         with col_opt1:
             brick_size = st.slider("Brick Size (pixels)", 10, 50, 30)
@@ -56,9 +56,27 @@ def main():
                 list(MOSAIC_STYLES.keys()),
                 index=0
             )
+            
+        with col_opt3:
+            display_format = st.selectbox(
+                "Display Format",
+                ["Brick Size", "Grid Layout"],
+                index=0
+            )
+            if display_format == "Grid Layout":
+                grid_columns = st.number_input("Number of Columns", 1, 20, 8)
+            else:
+                grid_columns = None
         
         # Convert image to LEGO mosaic
         img_array = np.array(image)
+        
+        # Adjust image size based on display format
+        if display_format == "Grid Layout":
+            # Calculate brick size based on desired number of columns
+            target_width = img_array.shape[1]
+            brick_size = target_width // grid_columns
+        
         lego_mosaic, brick_counts = convert_to_lego_mosaic(
             img_array, 
             brick_size, 
@@ -70,6 +88,14 @@ def main():
         with col2:
             st.subheader("LEGO Mosaic")
             st.image(lego_mosaic, use_column_width=True)
+            
+            # Display grid information
+            if display_format == "Grid Layout":
+                cols = lego_mosaic.shape[1] // brick_size
+                rows = lego_mosaic.shape[0] // brick_size
+                st.info(f"Grid Size: {rows} rows × {cols} columns")
+            else:
+                st.info(f"Brick Size: {brick_size}px")
         
         # Display brick counts
         st.subheader("Brick Count Estimation")
