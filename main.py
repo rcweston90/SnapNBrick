@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import io
+import pandas as pd
 from lego_utils import (
     convert_to_lego_mosaic,
     get_lego_palette
@@ -83,9 +84,9 @@ def main():
             with size_col2:
                 suggested_height = int(canvas_width / aspect_ratio)
                 canvas_height = st.number_input("Canvas Height (bricks)", 
-                                           min_value=10, 
-                                           max_value=100, 
-                                           value=min(50, suggested_height))
+                                            min_value=10, 
+                                            max_value=100, 
+                                            value=min(50, suggested_height))
 
             # Calculate optimal brick size
             brick_size = calculate_brick_size(img_array.shape, canvas_width, canvas_height)
@@ -141,20 +142,43 @@ def main():
                 mime="image/png"
             )
         
-        # Brick count statistics in expandable section
-        with st.expander("📊 Brick Count Statistics", expanded=False):
-            col3, col4 = st.columns(2)
+        # Brick count statistics in expandable section with table format
+        with st.expander("📊 Brick Count Statistics", expanded=True):
+            total_bricks = sum(brick_counts.values())
             
-            with col3:
-                st.write("Number of bricks needed for each color:")
-                for color, count in brick_counts.items():
-                    st.write(f"- {color}: {count} bricks")
+            # Create DataFrame for brick statistics
+            stats_data = {
+                'Color': list(brick_counts.keys()),
+                'Quantity': list(brick_counts.values()),
+                'Percentage': [f"{(count/total_bricks*100):.1f}%" for count in brick_counts.values()]
+            }
+            df = pd.DataFrame(stats_data)
             
-            with col4:
-                total_bricks = sum(brick_counts.values())
-                st.write("Total Statistics:")
-                st.write(f"- Total bricks needed: {total_bricks}")
-                st.write(f"- Mosaic dimensions: {actual_cols} × {actual_rows} bricks")
+            # Add total row
+            total_row = pd.DataFrame({
+                'Color': ['Total'],
+                'Quantity': [total_bricks],
+                'Percentage': ['100.0%']
+            })
+            df = pd.concat([df, total_row], ignore_index=True)
+            
+            # Display the statistics
+            st.subheader("Brick Requirements")
+            st.dataframe(
+                df,
+                column_config={
+                    "Color": "LEGO Color",
+                    "Quantity": st.column_config.NumberColumn(
+                        "Quantity (bricks)",
+                        help="Number of bricks needed"
+                    ),
+                    "Percentage": "% of Total"
+                },
+                hide_index=True
+            )
+            
+            # Display mosaic dimensions
+            st.info(f"📐 Mosaic Dimensions: {actual_cols} × {actual_rows} bricks")
 
 if __name__ == "__main__":
     main()
